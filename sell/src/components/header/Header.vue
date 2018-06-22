@@ -48,6 +48,7 @@ export default {
     @import '../../common/stylus/mixin'
     .header
         background: rgba(7,17,27,0.5) 
+        overflow:hidden
         .content-wrapper
             padding: 1.5rem .75rem 1.125rem 1.5rem
             font-size: 0
