@@ -27,3 +27,5 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 ### 教程目录
  1. [环境配置](https://github.com/forrany/elem_Vue/blob/master/sell/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE.md)
  2. [需求分析与目录结构](https://github.com/forrany/elem_Vue/blob/master/sell/需求分析与目录结构.md)
+ 3. [页面骨架分割与设计](https://github.com/forrany/elem_Vue/blob/master/sell/%E7%A7%BB%E5%8A%A8%E7%AB%AF1px%E9%97%AE%E9%A2%98.md)
+ 4. [Header组件设计](https://github.com/forrany/elem_Vue/blob/master/sell/Header%E7%BB%84%E4%BB%B6%E8%AE%BE%E8%AE%A1.md)
