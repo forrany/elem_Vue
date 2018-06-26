@@ -1,13 +1,13 @@
 <template>
     <div class="header">
-        <div class="content-wrapper">
+        <div class="content-wrapper" @click="showDetail">
             <img :src="seller.avatar" alt="avatar" id="avatar">
             <div class="content">
                 <div class="title">
                     <span class="brand"></span>
                     <span class="name">{{seller.name}}</span>
                 </div>
-                <div class="number">
+                <div class="number" @click="showDetail">
                     <span class="count">{{seller.supports.length}}个</span>
                     <i class="icon-keyboard_arrow_right"></i>
                 </div>
@@ -29,6 +29,10 @@
                 <i class="icon-keyboard_arrow_right"></i>
             </div>
         </div>
+        <div v-show="isDetail" class="flow">
+            <div class="content"></div>
+            <div class="foot"></div>
+        </div>
     </div>
 </template>
 <script>
@@ -37,6 +41,16 @@ export default {
     props: {
         seller: {
             type: Object
+        }
+    },
+    data() {
+        return {
+            isDetail:false
+        }
+    },
+    methods:{
+        showDetail(){
+            this.isDetail = true
         }
     },
     created() {
@@ -48,7 +62,8 @@ export default {
     @import '../../common/stylus/mixin'
     .header
         background: rgba(7,17,27,0.5) 
-        overflow:hidden
+        overflow: hidden
+        position: relative
         .content-wrapper
             padding: 1.5rem .75rem 1.125rem 1.5rem
             font-size: 0
@@ -169,4 +184,14 @@ export default {
                     line-height: 1.75rem
                     position: absolute 
                     right: .75rem
+        .flow
+            position: fixed 
+            left: 0
+            top: 0
+            height: 100%
+            width:100%
+            z-index: 100
+            background-color: rgba(7,17,27,0.8)
+            overflow: hidden
+
 </style>
