@@ -8,7 +8,7 @@
                     <span class="name">{{seller.name}}</span>
                 </div>
                 <div class="number" @click="showDetail">
-                    <span class="count">{{seller.supports.length}}个</span>
+                    <span v-if="seller.supports" class="count">{{seller.supports.length}}个</span>
                     <i class="icon-keyboard_arrow_right"></i>
                 </div>
                 <div class="deliver">
@@ -31,7 +31,10 @@
         </div>
         <div v-show="isDetail" class="flow">
             <div class="content">
-                <div class="sticker">我是内容</div>
+                <div class="sticker">
+                    <div class="title">{{seller.name}}</div>
+                    <div class="stars"></div>
+                </div>
             </div>
             <div class="footer" @click="closeDetail">
                 <span class="icon">
@@ -209,6 +212,16 @@ export default {
                 .sticker
                     padding-bottom: 4rem
                     background-color:red
+                    text-align: center
+                    .title
+                        padding: 4rem 1rem
+                        font-size: 1rem
+                        font-weight: 700
+                        color: rgb(255,255,255)
+                        line-height: 1rem
+                    .starts
+                        height: 1.5rem
+                        margin-bottom: 1.75rem
             .footer
                 margin-top: -4rem
                 .icon 
