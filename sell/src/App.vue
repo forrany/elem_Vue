@@ -35,7 +35,6 @@ export default {
       response = response.data
       if (response.errno === 0) {
         that.seller = response.data
-        console.log(that.seller)
       }
     })
   }

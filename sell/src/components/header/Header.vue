@@ -30,8 +30,14 @@
             </div>
         </div>
         <div v-show="isDetail" class="flow">
-            <div class="content"></div>
-            <div class="foot"></div>
+            <div class="content">
+                <div class="sticker">我是内容</div>
+            </div>
+            <div class="footer" @click="closeDetail">
+                <span class="icon">
+                    <i class="icon-close"></i>
+                </span>
+            </div>
         </div>
     </div>
 </template>
@@ -51,10 +57,14 @@ export default {
     methods:{
         showDetail(){
             this.isDetail = true
+        },
+        closeDetail(){
+            this.isDetail = false
         }
     },
     created() {
         this.classMap = ['decrease','discount','special','invoice','guarantee']
+        return
     }
 }
 </script>
@@ -192,6 +202,19 @@ export default {
             width:100%
             z-index: 100
             background-color: rgba(7,17,27,0.8)
-            overflow: hidden
-
+            overflow: auto
+            .content
+                width: 100%
+                min-height: 100%
+                .sticker
+                    padding-bottom: 4rem
+                    background-color:red
+            .footer
+                margin-top: -4rem
+                .icon 
+                    display: block
+                    text-align: center
+                    .icon-close
+                        font-size: 2rem
+                        color: rgba(255,255,255,0.5)
 </style>
