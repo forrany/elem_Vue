@@ -29,24 +29,49 @@
                 <i class="icon-keyboard_arrow_right"></i>
             </div>
         </div>
-        <div v-show="isDetail" class="flow">
-            <div class="content">
-                <div class="sticker">
-                    <div class="title">{{seller.name}}</div>
-                    <div class="stars"></div>
+        <transition name="fade">
+            <div v-show="isDetail" class="flow">
+                <div class="content">
+                    <div class="sticker">
+                        <div class="title">{{seller.name}}</div>
+                        <v-stars :size="48" :score="seller.score"/>
+                        <div class="split">
+                            <div class="line"></div>
+                            <div class="message">优惠信息</div>
+                            <div class="line"></div>
+                        </div>
+                        <ul v-if="seller.supports" class="discont">
+                            <li v-for="(item,index) in seller.supports" :key="index" class="supports-item">
+                                <span class="icon" :class="classMap[item.type]"></span>
+                                <span class="text">{{item.description}}</span>
+                            </li>
+                        </ul>
+                        <div class="split">
+                            <div class="line"></div>
+                            <div class="message">商家公告</div>
+                            <div class="line"></div>
+                        </div>
+                        <div class="inform">
+                            {{seller.bulletin}}
+                        </div>
+                    </div>
+                </div>
+                <div class="footer" @click="closeDetail">
+                    <span class="icon">
+                        <i class="icon-close"></i>
+                    </span>
                 </div>
             </div>
-            <div class="footer" @click="closeDetail">
-                <span class="icon">
-                    <i class="icon-close"></i>
-                </span>
-            </div>
-        </div>
+        </transition>
     </div>
 </template>
 <script>
 /* eslint-disable */
+import star from "../stars/Star.vue"
 export default {
+    components:{
+        "v-stars": star
+    },
     props: {
         seller: {
             type: Object
@@ -55,6 +80,11 @@ export default {
     data() {
         return {
             isDetail:false
+        }
+    },
+    computed:{
+        score() {
+            return parseInt(this.seller.score)
         }
     },
     methods:{
@@ -124,8 +154,7 @@ export default {
                     .icon-keyboard_arrow_right
                         font-size .75rem
                         line-height 1.5rem
-                        margin-left .125rem
-                    
+                        margin-left .125rem      
                 .deliver
                     font-size: .75rem
                     line-height: .75rem
@@ -197,6 +226,10 @@ export default {
                     line-height: 1.75rem
                     position: absolute 
                     right: .75rem
+        .fade-enter-active, .fade-leave-active
+            transition: opacity 0.5s
+        .fade-enter, .fade-leave-to
+            opacity: 0
         .flow
             position: fixed 
             left: 0
@@ -211,17 +244,68 @@ export default {
                 min-height: 100%
                 .sticker
                     padding-bottom: 4rem
-                    background-color:red
                     text-align: center
                     .title
-                        padding: 4rem 1rem
+                        padding: 4rem 0 1rem 0
                         font-size: 1rem
                         font-weight: 700
                         color: rgb(255,255,255)
                         line-height: 1rem
-                    .starts
-                        height: 1.5rem
+                    .split
+                        width: 80%
+                        margin: 1.75rem auto auto 2.25rem
+                        display: flex
+                        .line
+                            border-bottom: 1px solid rgba(255,255,255,0.2)
+                            flex: 1
+                            position: relative
+                            top: -0.375rem
+                            width: 7rem
+                        .message
+                            margin: 0 .75rem
+                            color: #ffffff
+                            font-size: .875rem
+                            font-weight: 700
+                    .discont
+                        margin-top: 1.5rem
                         margin-bottom: 1.75rem
+                        .supports-item 
+                            margin-bottom: .75rem
+                            margin-left: 3rem
+                            text-align: left
+                            font-size: 0
+                            &:last-child
+                                margin-bottom: 0
+                            .icon
+                                display: inline-block 
+                                width: 1rem
+                                height: 1rem
+                                vertical-align: top
+                                margin-right: .375rem
+                                background-size: 1rem 1rem
+                                background-repeat: no-repeat
+                                &.decrease
+                                    bg-image('decrease_2')
+                                &.discount
+                                    bg-image('discount_2')
+                                &.guarantee
+                                    bg-image('guarantee_2')
+                                &.invoice
+                                    bg-image('invoice_2')
+                                &.special
+                                    bg-image('special_2')
+                            .text
+                                line-height: 1rem
+                                font-size: .75rem
+                                font-weight: 200
+                                color: #FFFFFF
+                    .inform
+                        text-align: left
+                        padding: 1.5rem 3rem 0 3rem
+                        line-height: 1.5rem
+                        color: #FFFFFF
+                        font-size: .75rem
+
             .footer
                 margin-top: -4rem
                 .icon 
