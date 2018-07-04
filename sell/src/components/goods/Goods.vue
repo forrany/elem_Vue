@@ -33,18 +33,24 @@
                 </li>
             </ul>
         </div>
+        <v-shopcart :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"/>
     </div>
 </template>
 <script>
 /* eslint space-before-function-paren: ["error", "never"] */
 /* eslint semi: "error" */
 import Bscroll from 'better-scroll';
+import shopcart from '../shopcart/Shopcart';
+
 const ERR_OK = 0;
 export default{
     props: {
         seller: {
             type: Object
         }
+    },
+    components: {
+        'v-shopcart': shopcart
     },
     data() {
         return {
