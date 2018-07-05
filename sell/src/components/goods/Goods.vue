@@ -28,12 +28,13 @@
                                     <span class="curP">￥</span><span class="num">{{food.price}}</span><span class="oldP" v-show="food.oldPrice">￥{{food.oldPrice}}</span>
                                 </div>
                             </div>
+                            <v-cartcontrol :food="food" v-on:cartAdd="childCartAdd" ref="control"/>
                         </li>
                     </ul>
                 </li>
             </ul>
         </div>
-        <v-shopcart :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"/>
+        <v-shopcart :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice" :selected-goods="selectedGoods" ref="shopcart"/>
     </div>
 </template>
 <script>
@@ -41,6 +42,7 @@
 /* eslint semi: "error" */
 import Bscroll from 'better-scroll';
 import shopcart from '../shopcart/Shopcart';
+import cartcontrol from '../cartcontrol/Control';
 
 const ERR_OK = 0;
 export default{
@@ -50,7 +52,8 @@ export default{
         }
     },
     components: {
-        'v-shopcart': shopcart
+        'v-shopcart': shopcart,
+        'v-cartcontrol': cartcontrol
     },
     data() {
         return {
@@ -68,13 +71,28 @@ export default{
                     return i;
                 }
             }
+        },
+        selectedGoods() {
+            let returnGood = [];
+            this.goods.forEach(goodClass => {
+                goodClass.foods.forEach(item => {
+                    if (item.count > 0) {
+                        returnGood.push({
+                            'price': item.price,
+                            'count': item.count
+                        });
+                    }
+                });
+            });
+            return returnGood;
         }
     },
     methods: {
         Bsinit() {
             this.$nextTick(() => {
                 this.foodScroll = new Bscroll('.foodsWrapper', {
-                    probeType: 3
+                    probeType: 3,
+                    click: true
                 });
                 this.scrollNav = new Bscroll('.navWrapper', {
                     click: true
@@ -96,6 +114,9 @@ export default{
         gotoFoods(index) {
             let foodlist = this.$refs.bsWrapper.getElementsByClassName('food-list-hook');
             this.foodScroll.scrollToElement(foodlist[index], 300);
+        },
+        childCartAdd(el) {
+            this.$refs.shopcart._drop(el);
         }
     },
     mounted() {
@@ -187,6 +208,8 @@ export default{
                 &:last-child
                     border-none()
                     padding: 0
+                    .controlWrapper
+                        bottom: 0
                 .avatar
                     flex: 0 0 3.5625rem
                     margin-right: .625rem
@@ -229,5 +252,9 @@ export default{
                             font-weight: 700
                             vertical-align: top
                             text-decoration: line-through
+                .controlWrapper
+                    position: absolute
+                    right: 0
+                    bottom: 1.125rem
 
 </style>
