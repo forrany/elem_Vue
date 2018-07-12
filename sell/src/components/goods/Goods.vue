@@ -79,7 +79,8 @@ export default{
                     if (item.count > 0) {
                         returnGood.push({
                             'price': item.price,
-                            'count': item.count
+                            'count': item.count,
+                            'name': item.name
                         });
                     }
                 });
@@ -116,7 +117,10 @@ export default{
             this.foodScroll.scrollToElement(foodlist[index], 300);
         },
         childCartAdd(el) {
-            this.$refs.shopcart._drop(el);
+            // 异步执行动画，提升使用体验
+            this.$nextTick(() => {
+                this.$refs.shopcart._drop(el);
+            });
         }
     },
     mounted() {

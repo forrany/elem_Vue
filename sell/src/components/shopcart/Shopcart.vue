@@ -1,5 +1,5 @@
 <template>
-    <div class="bannerWrapper">
+    <div class="bannerWrapper" @click="toggleList">
         <div class="leftContent">
             <div class="cartLogo">
                 <div class="logo" :class="{hasContent:getCount > 0}">
@@ -22,16 +22,34 @@
                 <div class="inner inner-hook"></div>
             </div>
         </transition-group>
+        <transition name="list-trans">
+            <div class="cartList" v-show="showList">
+                <div class="cartHead">
+                    <h1 class="listTitle">购物车</h1>
+                    <span class="empty">清空</span>
+                </div>
+                <div class="content">
+                    <ul class="goodList">
+                        <li v-for="(item,index) in selectedGoods" :key="index" class="list-item">
+                            <span class="list-name">{{item.name}}</span>
+                            <span class="list-price">{{item.count * item.price}}</span>
+                            <v-cartcontroll/>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </transition>
     </div>
 </template>
 
 <script>
 /* eslint space-before-function-paren: ["error", "never"] */
+import cartControl from '../cartcontrol/Control'
 export default {
     data() {
         return {
             balls: [{
-                show: true
+                show: false
             }, {
                 show: false
             }, {
@@ -42,14 +60,15 @@ export default {
                 show: false
             }
             ],
-            dropBall: []
+            dropBall: [],
+            fold: true
         }
     },
     methods: {
         _drop(el) {
             for (let i = 0; i < this.balls.length; i++) {
                 let ball = this.balls[i]
-                if (ball.show) {
+                if (!ball.show) {
                     ball.show = true
                     ball.el = el
                     this.dropBall.push(ball)
@@ -57,7 +76,7 @@ export default {
                 }
             }
         },
-        beforeEnter(el,done) {
+        beforeEnter(el, done) {
             let count = this.balls.length
             while (count--) {
                 let ball = this.balls[count]
@@ -65,14 +84,38 @@ export default {
                     let rect = ball.el.getBoundingClientRect()
                     let x = rect.left - 32
                     let y = -(window.innerHeight - rect.top - 22)
-                    el.style.display = ''
                     el.style.webkitTransform = `translate3d(0,${y}px,0)`
                     el.style.transform = `translate3d(0,${y}px,0)`
-                    let inner = el.getElementByClassName('inner-hook')[0]
-                    inner.style.webkitTransform
+                    let inner = el.getElementsByClassName('inner-hook')[0]
+                    inner.style.webkitTransform = `translate3d(${x}px,0,0)`
+                    inner.style.transform = `translate3d(${x}px,0,0)`
                 }
             }
+        },
+        dropEnter(el, done) {
+            /* eslint-disable no-unused-vars */
+            this.$nextTick(() => {
+                el.style.webkitTransform = 'translate3d(0,0,0)'
+                el.style.transform = 'translate3d(0,0,0)'
+                let inner = el.getElementsByClassName('inner-hook')[0]
+                inner.style.webkitTransform = 'translate3d(0,0,0)'
+                inner.style.transform = 'translate3d(0,0,0)'
+                el.addEventListener('transitionend', done)
+            })
+        },
+        afterEnter(el, done) {
+            let ball = this.dropBall.shift()
+            if (ball.show) {
+                ball.show = false
+                el.style.display = 'none'
+            }
+        },
+        toggleList() {
+            this.fold = !this.fold
         }
+    },
+    components: {
+        'v-cartcontrol': cartControl
     },
     props: {
         'delivery-price': {
@@ -117,24 +160,32 @@ export default {
             } else {
                 return '去结算'
             }
+        },
+        showList() {
+            if (!this.getCount) {
+                return false
+            }
+            return this.fold
         }
     }
 }
 </script>
 
 <style lang="stylus">
+@import '../../common/stylus/mixin.styl'
 .bannerWrapper
     display: flex
     position: fixed
     bottom: 0
     left: 0
-    z-index: 99
+    z-index: 1
     height: 3rem
     width: 100%
     background-color: #141d27
     font-size: 0
     .leftContent
         flex: 1
+        background-color: #2b333b
         .cartLogo
             display: inline-block
             height: 3.5rem
@@ -226,7 +277,54 @@ export default {
                 background-color: rgb(0,160,220)
                 transition: all 0.4s
         .drop-enter-active
-            transition: all 0.4s
-        .drop-enter
-            transform: translate3d(99px,0,0)
+            transition: all 0.4s cubic-bezier(.58,-0.42,.9,.55)
+    .list-trans-enter, .list-tarns-leave-to
+        transform: translate3d(0,0,0)
+    .list-trans-enter-active, .list-trans-leave-active
+        transition: all 1s
+        transform: translate3d(0,-100%,0)
+    .cartList
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        z-index: -1
+        .cartHead
+            height: 2.5rem
+            background-color: #f3f5f7
+            border-1px(rgba(7,17,27,0.1))
+            line-height: 2.5rem
+            padding: 0 1.125rem
+            .listTitle
+                float: left
+                font-size: .875rem
+                font-weight: 200
+                color: #000
+            .empty
+                float: right
+                font-size: .75rem
+                font-weight: 500
+                color: rgb(0,160,220)
+        .content
+            max-height: 13.5625rem
+            padding: 0 1.125rem
+            overflow: hidden
+            background-color: #ffffff
+            .list-item
+                position: relative
+                height: 3rem
+                width: 100%
+                border-1px(rgba(7,17,27,0.1))
+                font-size: 0
+                .list-name
+                    display: inline-block
+                    padding: .75rem 0
+                    font-size: .875rem
+                    line-height: 1.5rem
+                    color: rgb(7,17,27)
+                .list-price
+                    display: inline-block
+                    position: absolute
+                    right: 5.625rem
+                    color: red
 </style>

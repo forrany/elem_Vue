@@ -31,13 +31,7 @@ export default {
         },
         removeItem() {
             this.food.count--
-        },
-        console(msg) {
-            console.log(msg)
         }
-    },
-    created() {
-        console.log(this.food)
     }
 }
 </script>
