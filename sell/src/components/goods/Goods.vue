@@ -77,11 +77,7 @@ export default{
             this.goods.forEach(goodClass => {
                 goodClass.foods.forEach(item => {
                     if (item.count > 0) {
-                        returnGood.push({
-                            'price': item.price,
-                            'count': item.count,
-                            'name': item.name
-                        });
+                        returnGood.push(item);
                     }
                 });
             });

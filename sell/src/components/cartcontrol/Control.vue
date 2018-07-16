@@ -22,6 +22,7 @@ export default {
     },
     methods: {
         addItem() {
+            console.log('hh')
             if (!this.food.count) {
                 Vue.set(this.food, 'count', 1)
             } else {

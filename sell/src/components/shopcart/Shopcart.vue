@@ -1,6 +1,6 @@
 <template>
-    <div class="bannerWrapper" @click="toggleList">
-        <div class="leftContent">
+    <div class="bannerWrapper">
+        <div class="leftContent" @click="toggleList">
             <div class="cartLogo">
                 <div class="logo" :class="{hasContent:getCount > 0}">
                     <i class="icon icon-shopping_cart"></i>
@@ -10,7 +10,7 @@
             <div class="totalPrice">￥{{getTotalPrice}}元</div>
             <div class="disc">另需配送费￥{{deliveryPrice}}元</div>
         </div>
-        <div class="rightContent" :class="{goal: isGotoDelivery === '去结算'}">
+        <div class="rightContent" :class="{goal: isGotoDelivery === '去结算'}" @click="toggleList">
             <span class="pricStart">{{isGotoDelivery}}</span>
         </div>
         <transition-group name="drop" tag="div" class="ball-content"
@@ -22,18 +22,18 @@
                 <div class="inner inner-hook"></div>
             </div>
         </transition-group>
-        <transition name="list-trans">
-            <div class="cartList" v-show="showList">
+        <transition name="list-trans" mode="in-out">
+            <div class="cartList" v-show="true" :class="{listAnimate:showList}">
                 <div class="cartHead">
                     <h1 class="listTitle">购物车</h1>
-                    <span class="empty">清空</span>
+                    <span class="empty" @click="clearCart">清空</span>
                 </div>
                 <div class="content">
                     <ul class="goodList">
                         <li v-for="(item,index) in selectedGoods" :key="index" class="list-item">
                             <span class="list-name">{{item.name}}</span>
-                            <span class="list-price">{{item.count * item.price}}</span>
-                            <v-cartcontroll/>
+                            <span class="list-price">￥{{item.count * item.price}}</span>
+                            <v-cartcontrol :food="item" class="vControl"/>
                         </li>
                     </ul>
                 </div>
@@ -45,6 +45,7 @@
 <script>
 /* eslint space-before-function-paren: ["error", "never"] */
 import cartControl from '../cartcontrol/Control'
+import Btscroll from 'better-scroll'
 export default {
     data() {
         return {
@@ -91,6 +92,11 @@ export default {
                     inner.style.transform = `translate3d(${x}px,0,0)`
                 }
             }
+        },
+        clearCart() {
+            this.selectedGoods.forEach(food => {
+                food.count = 0
+            })
         },
         dropEnter(el, done) {
             /* eslint-disable no-unused-vars */
@@ -165,7 +171,25 @@ export default {
             if (!this.getCount) {
                 return false
             }
-            return this.fold
+            let show = !this.fold
+            return show
+        }
+    },
+    watch: {
+        fold() {
+            if (!this.fold) {
+                if (!this.contentScroll) {
+                    console.log('new scroll')
+                    this.$nextTick(() => {
+                        this.contentScroll = new Btscroll('.content', {click: true})
+                        console.log(this.contentScroll)
+                    })
+                } else {
+                    console.log('have scroll')
+                    this.contentScroll.refresh()
+                    console.log(this.contentScroll)
+                }
+            }
         }
     }
 }
@@ -278,17 +302,15 @@ export default {
                 transition: all 0.4s
         .drop-enter-active
             transition: all 0.4s cubic-bezier(.58,-0.42,.9,.55)
-    .list-trans-enter, .list-tarns-leave-to
-        transform: translate3d(0,0,0)
-    .list-trans-enter-active, .list-trans-leave-active
-        transition: all 1s
-        transform: translate3d(0,-100%,0)
+    .listAnimate
+        transform:translateY(-100%)
     .cartList
         position: absolute
         top: 0
         left: 0
         width: 100%
         z-index: -1
+        transition: all 0.8s
         .cartHead
             height: 2.5rem
             background-color: #f3f5f7
@@ -326,5 +348,13 @@ export default {
                     display: inline-block
                     position: absolute
                     right: 5.625rem
+                    padding: .75rem 0
+                    line-height: 1.5rem
                     color: red
+                    font-size: .875rem
+                    font-weight: 700
+                .controlWrapper
+                    position: absolute
+                    right: 0
+                    bottom: .75rem
 </style>
