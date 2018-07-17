@@ -1,43 +1,50 @@
 <template>
-    <div class="bannerWrapper">
-        <div class="leftContent" @click="toggleList">
-            <div class="cartLogo">
-                <div class="logo" :class="{hasContent:getCount > 0}">
-                    <i class="icon icon-shopping_cart"></i>
+    <div class="bannerRooter">
+        <div class="bannerWrapper">
+            <div class="mContent" @click="toggleList">
+                <div class="leftContent">
+                    <div class="cartLogo">
+                        <div class="logo" :class="{hasContent:getCount > 0}">
+                            <i class="icon icon-shopping_cart"></i>
+                        </div>
+                    </div>
+                    <div class="num" v-show="getCount > 0">{{getCount}}</div>
+                    <div class="totalPrice">￥{{getTotalPrice}}元</div>
+                    <div class="disc">另需配送费￥{{deliveryPrice}}元</div>
+                </div>
+                <div class="rightContent" :class="{goal: isGotoDelivery === '去结算'}" @click.stop.prevent="pay">
+                    <span class="pricStart">{{isGotoDelivery}}</span>
                 </div>
             </div>
-            <div class="num" v-show="getCount > 0">{{getCount}}</div>
-            <div class="totalPrice">￥{{getTotalPrice}}元</div>
-            <div class="disc">另需配送费￥{{deliveryPrice}}元</div>
+            <transition-group name="drop" tag="div" class="ball-content"
+                v-on:before-enter="beforeEnter"
+                v-on:enter="dropEnter"
+                v-on:after-enter="afterEnter"
+            >
+                <div class="ball" v-for="(ball,index) in balls" :key="index" v-show="ball.show">
+                    <div class="inner inner-hook"></div>
+                </div>
+            </transition-group>
+            <transition name="list-trans" mode="in-out">
+                <div class="cartList" v-show="true" :class="{listAnimate:showList}">
+                    <div class="cartHead">
+                        <h1 class="listTitle">购物车</h1>
+                        <span class="empty" @click="clearCart">清空</span>
+                    </div>
+                    <div class="cartListContent">
+                        <ul class="goodList">
+                            <li v-for="(item,index) in selectedGoods" :key="index" class="list-item">
+                                <span class="list-name">{{item.name}}</span>
+                                <span class="list-price">￥{{item.count * item.price}}</span>
+                                <v-cartcontrol :food="item" class="vControl"/>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </transition>
         </div>
-        <div class="rightContent" :class="{goal: isGotoDelivery === '去结算'}" @click="toggleList">
-            <span class="pricStart">{{isGotoDelivery}}</span>
-        </div>
-        <transition-group name="drop" tag="div" class="ball-content"
-            v-on:before-enter="beforeEnter"
-            v-on:enter="dropEnter"
-            v-on:after-enter="afterEnter"
-        >
-            <div class="ball" v-for="(ball,index) in balls" :key="index" v-show="ball.show">
-                <div class="inner inner-hook"></div>
-            </div>
-        </transition-group>
-        <transition name="list-trans" mode="in-out">
-            <div class="cartList" v-show="true" :class="{listAnimate:showList}">
-                <div class="cartHead">
-                    <h1 class="listTitle">购物车</h1>
-                    <span class="empty" @click="clearCart">清空</span>
-                </div>
-                <div class="content">
-                    <ul class="goodList">
-                        <li v-for="(item,index) in selectedGoods" :key="index" class="list-item">
-                            <span class="list-name">{{item.name}}</span>
-                            <span class="list-price">￥{{item.count * item.price}}</span>
-                            <v-cartcontrol :food="item" class="vControl"/>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+        <transition name="mask">
+            <div class="listMask" v-show="showList" @click="toggleList"></div>
         </transition>
     </div>
 </template>
@@ -45,7 +52,7 @@
 <script>
 /* eslint space-before-function-paren: ["error", "never"] */
 import cartControl from '../cartcontrol/Control'
-import Btscroll from 'better-scroll'
+import Bscroll from 'better-scroll'
 export default {
     data() {
         return {
@@ -118,6 +125,12 @@ export default {
         },
         toggleList() {
             this.fold = !this.fold
+        },
+        pay() {
+            if (this.getTotalPrice < 20) {
+                return
+            }
+            alert(`支付${this.getTotalPrice}元`)
         }
     },
     components: {
@@ -179,15 +192,13 @@ export default {
         fold() {
             if (!this.fold) {
                 if (!this.contentScroll) {
-                    console.log('new scroll')
                     this.$nextTick(() => {
-                        this.contentScroll = new Btscroll('.content', {click: true})
-                        console.log(this.contentScroll)
+                        this.contentScroll = new Bscroll('.cartListContent', {
+                        click: true
+                    })
                     })
                 } else {
-                    console.log('have scroll')
                     this.contentScroll.refresh()
-                    console.log(this.contentScroll)
                 }
             }
         }
@@ -207,87 +218,90 @@ export default {
     width: 100%
     background-color: #141d27
     font-size: 0
-    .leftContent
-        flex: 1
-        background-color: #2b333b
-        .cartLogo
-            display: inline-block
-            height: 3.5rem
-            width: 3.5rem
-            margin: 0 12px
-            border-radius: 50%
-            background-color: #141d27;
-            position: relative
-            top: -10px
-            .logo
+    .mContent
+        display: flex
+        width: 100%
+        .leftContent
+            flex: 1
+            background-color: #2b333b
+            .cartLogo
                 display: inline-block
+                height: 3.5rem
+                width: 3.5rem
+                margin: 0 12px
                 border-radius: 50%
-                height: 2.75rem
-                width: 2.75rem
+                background-color: #141d27;
                 position: relative
-                top: .375rem
-                left: .375rem
-                background-color: #2b343c
-                text-align: center
-                &.hasContent
-                    background-color: rgb(0,160,220)
-                    .icon
-                        color:#fff
-                .icon
+                top: -10px
+                .logo
                     display: inline-block
-                    font-size: 1.5rem
-                    color: rgba(255,255,255,0.4)
-                    line-height: 2.75rem
-        .num
-            width: 1.5rem
-            position: absolute
-            left: 2.75rem
-            top: -10px
-            box-sizing: border-box
-            border-radius: .375rem
-            background-color: rgb(240,20,20)
-            font-size: 9px
-            font-weight: 700
-            text-align: center
-            color: #ffffff
-            line-height: 1rem
-
-        .totalPrice
-            display: inline-block
-            box-sizing: border-box
-            padding-right: .75rem
-            margin-top: .75rem
-            border-right: 1px solid rgba(255,255,255,0.1)
-            color: rgba(255,255,255,0.4)
-            font-size: 1rem
-            font-weight: 700
-            line-height: 24px
-            vertical-align: top
-        .disc
-            display: inline-block
-            box-sizing: border-box
-            padding-left: .75rem
-            margin-top: .75rem
-            color: rgba(255,255,255,0.4)
-            font-size: 12px
-            font-weight: 200
-            line-height: 24px
-            vertical-align: top
-    .rightContent
-        flex: 0 0 6.5625rem
-        background-color: #2b333b
-        text-align: center
-        &.goal
-            background-color: #00b43c
-            .pricStart
+                    border-radius: 50%
+                    height: 2.75rem
+                    width: 2.75rem
+                    position: relative
+                    top: .375rem
+                    left: .375rem
+                    background-color: #2b343c
+                    text-align: center
+                    &.hasContent
+                        background-color: rgb(0,160,220)
+                        .icon
+                            color:#fff
+                    .icon
+                        display: inline-block
+                        font-size: 1.5rem
+                        color: rgba(255,255,255,0.4)
+                        line-height: 2.75rem
+            .num
+                width: 1.5rem
+                position: absolute
+                left: 2.75rem
+                top: -10px
+                box-sizing: border-box
+                border-radius: .375rem
+                background-color: rgb(240,20,20)
+                font-size: 9px
+                font-weight: 700
+                text-align: center
                 color: #ffffff
-        .pricStart
-            display: inline-block
-            margin: 0 auto
-            font-size: .75rem
-            color: rgba(255,255,255,0.4)
-            font-weight: 700
-            line-height: 3rem
+                line-height: 1rem
+
+            .totalPrice
+                display: inline-block
+                box-sizing: border-box
+                padding-right: .75rem
+                margin-top: .75rem
+                border-right: 1px solid rgba(255,255,255,0.1)
+                color: rgba(255,255,255,0.4)
+                font-size: 1rem
+                font-weight: 700
+                line-height: 24px
+                vertical-align: top
+            .disc
+                display: inline-block
+                box-sizing: border-box
+                padding-left: .75rem
+                margin-top: .75rem
+                color: rgba(255,255,255,0.4)
+                font-size: 12px
+                font-weight: 200
+                line-height: 24px
+                vertical-align: top
+        .rightContent
+            flex: 0 0 6.5625rem
+            background-color: #2b333b
+            text-align: center
+            &.goal
+                background-color: #00b43c
+                .pricStart
+                    color: #ffffff
+            .pricStart
+                display: inline-block
+                margin: 0 auto
+                font-size: .75rem
+                color: rgba(255,255,255,0.4)
+                font-weight: 700
+                line-height: 3rem
     .ball-content
         .ball
             position: fixed
@@ -327,7 +341,7 @@ export default {
                 font-size: .75rem
                 font-weight: 500
                 color: rgb(0,160,220)
-        .content
+        .cartListContent
             max-height: 13.5625rem
             padding: 0 1.125rem
             overflow: hidden
@@ -357,4 +371,16 @@ export default {
                     position: absolute
                     right: 0
                     bottom: .75rem
+.listMask
+    position: fixed
+    bottom: 0
+    left: 0
+    width: 100%
+    height: 100%
+    background-color: rgba(7,17,27,0.6)
+    z-index: 0
+.mask-enter-active, .mask-leave-active
+    transition: all 1s
+.mask-enter, .mask-leave-to
+    opacity: 0
 </style>
